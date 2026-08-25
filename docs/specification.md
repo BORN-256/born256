@@ -14,32 +14,44 @@ Each round contains:
 
 ### High-Level Flow
 
-Plaintext
-    ↓
-UTF-8 Encoding
-    ↓
-256-bit Block
-    ↓
-Round 1
-    ├── Key Mixing
-    ├── Boolean Transformation
-    └── Permutation
-    ↓
-Round 2
-    ├── Key Mixing
-    ├── Boolean Transformation
-    └── Permutation
-    ↓
-...
-    ↓
-Round 16
-    ├── Key Mixing
-    ├── Boolean Transformation
-    └── Permutation
-    ↓
-Ciphertext
-    ↓
-Hexadecimal Output
+PLAINTEXT
+    │
+    ▼
+UTF-8 ENCODING
+    │
+    ▼
+256-BIT BLOCK
+    │
+    ▼
+┌───────────────────────────┐
+│        ROUND 1            │
+│                           │
+│  Key Mixing               │
+│       ↓                   │
+│  AND / OR / NOT           │
+│       ↓                   │
+│  Permutation / Diffusion  │
+└─────────────┬─────────────┘
+              │
+              ▼
+             ...
+              │
+              ▼
+┌───────────────────────────┐
+│       ROUND 16            │
+│                           │
+│  Key Mixing               │
+│       ↓                   │
+│  AND / OR / NOT           │
+│       ↓                   │
+│  Permutation / Diffusion  │
+└─────────────┬─────────────┘
+              │
+              ▼
+         CIPHERTEXT
+              │
+              ▼
+       HEX ENCODED OUTPUT
 
 ## Boolean Operations
 
