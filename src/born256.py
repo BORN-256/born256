@@ -2,10 +2,8 @@
 BORN-256 v0.1
 Experimental Cryptographic Research Construction
 
-Reference implementation under development.
-
-This implementation is experimental and must NOT be used
-to protect real-world sensitive information.
+This implementation is experimental.
+It must NOT be used to protect real-world sensitive information.
 """
 
 # ============================================================
@@ -25,8 +23,6 @@ PERMUTATION_MULTIPLIER = 5
 # ============================================================
 
 def validate_block(block: bytes) -> None:
-    """Validate a 256-bit block/state."""
-
     if not isinstance(block, bytes):
         raise TypeError("Block must be a bytes object.")
 
@@ -37,8 +33,6 @@ def validate_block(block: bytes) -> None:
 
 
 def validate_key(key: bytes) -> None:
-    """Validate a 256-bit key."""
-
     if not isinstance(key, bytes):
         raise TypeError("Key must be a bytes object.")
 
@@ -49,8 +43,6 @@ def validate_key(key: bytes) -> None:
 
 
 def validate_bit(value: int) -> None:
-    """Validate a single bit."""
-
     if value not in (0, 1):
         raise ValueError(
             "Boolean values must be 0 or 1."
@@ -62,59 +54,32 @@ def validate_bit(value: int) -> None:
 # ============================================================
 
 def and_gate(a: int, b: int) -> int:
-    """AND gate."""
-
     validate_bit(a)
     validate_bit(b)
-
     return a & b
 
 
 def or_gate(a: int, b: int) -> int:
-    """OR gate."""
-
     validate_bit(a)
     validate_bit(b)
-
     return a | b
 
 
 def not_gate(a: int) -> int:
-    """NOT gate restricted to one bit."""
-
     validate_bit(a)
-
     return 1 - a
 
 
-# ============================================================
-# XOR USING AND / OR / NOT
-# ============================================================
-
 def xor_gate(a: int, b: int) -> int:
-    """
-    XOR constructed using only:
-
-        AND
-        OR
-        NOT
-
-    Formula:
-
-        XOR(A,B) =
-            (A OR B) AND NOT(A AND B)
-    """
-
     validate_bit(a)
     validate_bit(b)
 
     a_or_b = or_gate(a, b)
     a_and_b = and_gate(a, b)
-    not_a_and_b = not_gate(a_and_b)
 
     return and_gate(
         a_or_b,
-        not_a_and_b
+        not_gate(a_and_b)
     )
 
 
@@ -127,15 +92,6 @@ def born_t(
     b: int,
     c: int
 ) -> tuple[int, int, int]:
-    """
-    BORN-T reversible Boolean transformation.
-
-        a' = a
-        b' = b
-        c' = c XOR (a AND b)
-
-    XOR is constructed using AND / OR / NOT.
-    """
 
     validate_bit(a)
     validate_bit(b)
@@ -151,35 +107,27 @@ def born_t(
     return a, b, new_c
 
 
-# ============================================================
-# BORN-T INVERSE
-# ============================================================
-
 def inverse_born_t(
     a: int,
     b: int,
     c: int
 ) -> tuple[int, int, int]:
-    """BORN-T is self-inverse."""
 
     return born_t(a, b, c)
 
 
 # ============================================================
-# BYTE <-> BIT CONVERSION
+# BYTE / BIT CONVERSION
 # ============================================================
 
 def bytes_to_bits(data: bytes) -> list[int]:
-    """
-    Convert bytes to individual bits.
-
-    Bits are ordered MSB first.
-    """
 
     bits = []
 
     for byte in data:
+
         for bit_position in range(8):
+
             bit = (
                 byte >> (7 - bit_position)
             ) & 1
@@ -189,15 +137,13 @@ def bytes_to_bits(data: bytes) -> list[int]:
     return bits
 
 
-def bits_to_bytes(bits: list[int]) -> bytes:
-    """
-    Convert exactly 256 bits into 32 bytes.
-    """
+def bits_to_bytes(
+    bits: list[int]
+) -> bytes:
 
     if len(bits) != STATE_BITS:
         raise ValueError(
-            "BORN-256 state must contain exactly "
-            "256 bits."
+            "BORN-256 state must contain exactly 256 bits."
         )
 
     result = bytearray(BLOCK_SIZE)
@@ -220,20 +166,9 @@ def bits_to_bytes(bits: list[int]) -> bytes:
 # 256-BIT BORN-T LAYER
 # ============================================================
 
-def born_t_layer(state: bytes) -> bytes:
-    """
-    Apply BORN-T across the 256-bit state.
-
-    For every bit position i:
-
-        a = (i + 1) mod 256
-        b = (i + 33) mod 256
-
-        S[i] = S[i] XOR
-               (S[a] AND S[b])
-
-    Operations are performed sequentially.
-    """
+def born_t_layer(
+    state: bytes
+) -> bytes:
 
     validate_block(state)
 
@@ -265,17 +200,12 @@ def born_t_layer(state: bytes) -> bytes:
 
 
 # ============================================================
-# INVERSE 256-BIT BORN-T LAYER
+# INVERSE BORN-T LAYER
 # ============================================================
 
 def inverse_born_t_layer(
     state: bytes
 ) -> bytes:
-    """
-    Reverse the 256-bit BORN-T layer.
-
-    Operations are executed in reverse order.
-    """
 
     validate_block(state)
 
@@ -311,20 +241,13 @@ def inverse_born_t_layer(
 
 
 # ============================================================
-# 256-BIT KEY MIXING
+# KEY MIXING
 # ============================================================
 
 def key_mix(
     state: bytes,
     key: bytes
 ) -> bytes:
-    """
-    Mix a 256-bit state with a 256-bit key.
-
-        M[i] = S[i] XOR K[i]
-
-    XOR is constructed using AND / OR / NOT.
-    """
 
     validate_block(state)
     validate_key(key)
@@ -339,13 +262,11 @@ def key_mix(
         key_bits
     ):
 
-        mixed_bit = xor_gate(
-            state_bit,
-            key_bit
-        )
-
         mixed_bits.append(
-            mixed_bit
+            xor_gate(
+                state_bit,
+                key_bit
+            )
         )
 
     return bits_to_bytes(
@@ -354,7 +275,7 @@ def key_mix(
 
 
 # ============================================================
-# STATE-WIDE REVERSIBLE MIXING
+# STATE-WIDE MIXING
 # ============================================================
 
 def mix_bit(
@@ -362,13 +283,6 @@ def mix_bit(
     destination: int,
     source: int
 ) -> None:
-    """
-    Reversible operation:
-
-        state[destination] ^= state[source]
-
-    XOR is constructed through AND / OR / NOT.
-    """
 
     state[destination] = xor_gate(
         state[destination],
@@ -376,26 +290,9 @@ def mix_bit(
     )
 
 
-def state_mix(state: bytes) -> bytes:
-    """
-    Experimental 256-bit state-wide reversible
-    diffusion layer.
-
-    The operation sequence was previously tested
-    for reversibility and avalanche behavior.
-
-    Distances:
-
-        1
-        3
-        7
-        15
-        31
-        63
-        127
-
-    Each operation is reversible.
-    """
+def state_mix(
+    state: bytes
+) -> bytes:
 
     validate_block(state)
 
@@ -435,11 +332,6 @@ def state_mix(state: bytes) -> bytes:
 def inverse_state_mix(
     state: bytes
 ) -> bytes:
-    """
-    Exact inverse of state_mix().
-
-    The operations are performed in reverse order.
-    """
 
     validate_block(state)
 
@@ -475,20 +367,12 @@ def inverse_state_mix(
 
 
 # ============================================================
-# 256-BIT PERMUTATION
+# PERMUTATION
 # ============================================================
 
 def permute_state(
     state: bytes
 ) -> bytes:
-    """
-    Reversibly permute the 256-bit state.
-
-        output[i] =
-            input[(i * 5) mod 256]
-
-    gcd(5,256) = 1, so the mapping is bijective.
-    """
 
     validate_block(state)
 
@@ -512,13 +396,12 @@ def permute_state(
 
 
 # ============================================================
-# INVERSE 256-BIT PERMUTATION
+# INVERSE PERMUTATION
 # ============================================================
 
 def inverse_permute_state(
     state: bytes
 ) -> bytes:
-    """Reverse the 256-bit permutation."""
 
     validate_block(state)
 
@@ -542,55 +425,156 @@ def inverse_permute_state(
 
 
 # ============================================================
-# BORN-256 ONE ROUND
+# BORN-256 KEY SCHEDULE
+# ============================================================
+
+def key_schedule(
+    master_key: bytes,
+    rounds: int = ROUNDS
+) -> list[bytes]:
+
+    validate_key(master_key)
+
+    if rounds <= 0:
+        raise ValueError(
+            "Number of rounds must be positive."
+        )
+
+    keys = []
+
+    current = master_key
+
+    for round_number in range(rounds):
+
+        rotation = (
+            (round_number + 1) * 7
+        ) % STATE_BITS
+
+        bits = bytes_to_bits(
+            current
+        )
+
+        rotated = (
+            bits[rotation:]
+            + bits[:rotation]
+        )
+
+        current = bits_to_bytes(
+            rotated
+        )
+
+        current = born_t_layer(
+            current
+        )
+
+        constant = (
+            (round_number + 1)
+            * 0x9E3779B1
+        ) & 0xFFFFFFFF
+
+        constant_bytes = (
+            constant.to_bytes(
+                4,
+                "big"
+            ) * 8
+        )
+
+        current = key_mix(
+            current,
+            constant_bytes
+        )
+
+        keys.append(current)
+
+    return keys
+
+
+# ============================================================
+# INVERSE KEY SCHEDULE
+# ============================================================
+
+def inverse_key_schedule(
+    round_keys: list[bytes]
+) -> bytes:
+
+    if not round_keys:
+        raise ValueError(
+            "Round-key list cannot be empty."
+        )
+
+    current = round_keys[-1]
+
+    for round_number in reversed(
+        range(len(round_keys))
+    ):
+
+        constant = (
+            (round_number + 1)
+            * 0x9E3779B1
+        ) & 0xFFFFFFFF
+
+        constant_bytes = (
+            constant.to_bytes(
+                4,
+                "big"
+            ) * 8
+        )
+
+        current = key_mix(
+            current,
+            constant_bytes
+        )
+
+        current = inverse_born_t_layer(
+            current
+        )
+
+        rotation = (
+            (round_number + 1) * 7
+        ) % STATE_BITS
+
+        bits = bytes_to_bits(
+            current
+        )
+
+        if rotation:
+
+            bits = (
+                bits[-rotation:]
+                + bits[:-rotation]
+            )
+
+        current = bits_to_bytes(
+            bits
+        )
+
+    return current
+
+
+# ============================================================
+# ONE BORN-256 ROUND
 # ============================================================
 
 def born_round(
     state: bytes,
     round_key: bytes
 ) -> bytes:
-    """
-    Apply one experimental BORN-256 round.
-
-    Round structure:
-
-        1. Key Mixing
-        2. BORN-T Layer
-        3. State-Wide Mixing
-        4. Permutation
-    """
 
     validate_block(state)
     validate_key(round_key)
-
-    # --------------------------------------------------------
-    # Step 1: Key mixing
-    # --------------------------------------------------------
 
     state = key_mix(
         state,
         round_key
     )
 
-    # --------------------------------------------------------
-    # Step 2: Boolean transformation
-    # --------------------------------------------------------
-
     state = born_t_layer(
         state
     )
 
-    # --------------------------------------------------------
-    # Step 3: State-wide diffusion
-    # --------------------------------------------------------
-
     state = state_mix(
         state
     )
-
-    # --------------------------------------------------------
-    # Step 4: Permutation
-    # --------------------------------------------------------
 
     state = permute_state(
         state
@@ -600,67 +584,28 @@ def born_round(
 
 
 # ============================================================
-# INVERSE BORN-256 ONE ROUND
+# INVERSE ONE BORN-256 ROUND
 # ============================================================
 
 def inverse_born_round(
     state: bytes,
     round_key: bytes
 ) -> bytes:
-    """
-    Reverse one BORN-256 round.
-
-    Forward:
-
-        Key Mixing
-            ↓
-        BORN-T Layer
-            ↓
-        State-Wide Mixing
-            ↓
-        Permutation
-
-    Inverse:
-
-        Inverse Permutation
-            ↓
-        Inverse State-Wide Mixing
-            ↓
-        Inverse BORN-T Layer
-            ↓
-        Key Mixing
-    """
 
     validate_block(state)
     validate_key(round_key)
-
-    # --------------------------------------------------------
-    # Step 1: Reverse permutation
-    # --------------------------------------------------------
 
     state = inverse_permute_state(
         state
     )
 
-    # --------------------------------------------------------
-    # Step 2: Reverse state-wide mixing
-    # --------------------------------------------------------
-
     state = inverse_state_mix(
         state
     )
 
-    # --------------------------------------------------------
-    # Step 3: Reverse BORN-T
-    # --------------------------------------------------------
-
     state = inverse_born_t_layer(
         state
     )
-
-    # --------------------------------------------------------
-    # Step 4: Reverse key mixing
-    # --------------------------------------------------------
 
     state = key_mix(
         state,
@@ -671,58 +616,70 @@ def inverse_born_round(
 
 
 # ============================================================
-# ENCRYPTION PLACEHOLDER
+# FULL 16-ROUND ENCRYPTION
 # ============================================================
 
 def encrypt_block(
     block: bytes,
     key: bytes
 ) -> bytes:
-    """
-    Full 16-round encryption is not implemented yet.
-
-    Current development stage:
-
-        One reversible round
-        has been implemented and tested.
-    """
 
     validate_block(block)
     validate_key(key)
 
-    raise NotImplementedError(
-        "Full BORN-256 encryption "
-        "is not implemented yet."
+    round_keys = key_schedule(
+        key,
+        ROUNDS
     )
+
+    state = block
+
+    for round_key in round_keys:
+
+        state = born_round(
+            state,
+            round_key
+        )
+
+    return state
 
 
 # ============================================================
-# DECRYPTION PLACEHOLDER
+# FULL 16-ROUND DECRYPTION
 # ============================================================
 
 def decrypt_block(
     block: bytes,
     key: bytes
 ) -> bytes:
-    """
-    Full 16-round decryption is not implemented yet.
-    """
 
     validate_block(block)
     validate_key(key)
 
-    raise NotImplementedError(
-        "Full BORN-256 decryption "
-        "is not implemented yet."
+    round_keys = key_schedule(
+        key,
+        ROUNDS
     )
+
+    state = block
+
+    for round_key in reversed(
+        round_keys
+    ):
+
+        state = inverse_born_round(
+            state,
+            round_key
+        )
+
+    return state
 
 
 # ============================================================
-# TEST: BORN-T
+# SELF-TEST: BORN-T
 # ============================================================
 
 def test_born_t() -> None:
-    """Test every possible 3-bit input."""
 
     for a in (0, 1):
 
@@ -749,10 +706,7 @@ def test_born_t() -> None:
                 if recovered != original:
 
                     raise AssertionError(
-                        f"BORN-T failed: "
-                        f"{original} -> "
-                        f"{transformed} -> "
-                        f"{recovered}"
+                        "BORN-T reversibility failed."
                     )
 
     print(
@@ -761,11 +715,10 @@ def test_born_t() -> None:
 
 
 # ============================================================
-# TEST: 256-BIT BORN-T LAYER
+# SELF-TEST: 256-BIT BORN-T
 # ============================================================
 
 def test_born_t_layer() -> None:
-    """Test reversibility of the 256-bit BORN-T layer."""
 
     test_states = [
 
@@ -791,17 +744,14 @@ def test_born_t_layer() -> None:
             original
         )
 
-        recovered = (
-            inverse_born_t_layer(
-                transformed
-            )
+        recovered = inverse_born_t_layer(
+            transformed
         )
 
         if recovered != original:
 
             raise AssertionError(
-                "256-bit BORN-T layer "
-                "failed reversibility test."
+                "256-bit BORN-T reversibility failed."
             )
 
     print(
@@ -810,11 +760,10 @@ def test_born_t_layer() -> None:
 
 
 # ============================================================
-# TEST: KEY MIXING
+# SELF-TEST: KEY MIXING
 # ============================================================
 
 def test_key_mix() -> None:
-    """Test reversibility of 256-bit key mixing."""
 
     test_cases = [
 
@@ -854,8 +803,7 @@ def test_key_mix() -> None:
         if recovered_state != original_state:
 
             raise AssertionError(
-                "256-bit key mixing "
-                "failed reversibility test."
+                "256-bit key mixing reversibility failed."
             )
 
     print(
@@ -864,11 +812,10 @@ def test_key_mix() -> None:
 
 
 # ============================================================
-# TEST: STATE-WIDE MIXING
+# SELF-TEST: STATE-WIDE MIXING
 # ============================================================
 
 def test_state_mix() -> None:
-    """Test reversibility of state-wide mixing."""
 
     test_states = [
 
@@ -905,8 +852,7 @@ def test_state_mix() -> None:
         if recovered != original:
 
             raise AssertionError(
-                "256-bit state-wide mixing "
-                "failed reversibility test."
+                "256-bit state-wide mixing reversibility failed."
             )
 
     print(
@@ -915,11 +861,10 @@ def test_state_mix() -> None:
 
 
 # ============================================================
-# TEST: PERMUTATION
+# SELF-TEST: PERMUTATION
 # ============================================================
 
 def test_permutation() -> None:
-    """Test reversibility of the permutation."""
 
     test_states = [
 
@@ -945,17 +890,14 @@ def test_permutation() -> None:
             original
         )
 
-        recovered = (
-            inverse_permute_state(
-                permuted
-            )
+        recovered = inverse_permute_state(
+            permuted
         )
 
         if recovered != original:
 
             raise AssertionError(
-                "256-bit permutation "
-                "failed reversibility test."
+                "256-bit permutation reversibility failed."
             )
 
     print(
@@ -964,33 +906,78 @@ def test_permutation() -> None:
 
 
 # ============================================================
-# TEST: ONE COMPLETE ROUND
+# SELF-TEST: KEY SCHEDULE
+# ============================================================
+
+def test_key_schedule() -> None:
+
+    master_key = bytes(
+        range(KEY_SIZE)
+    )
+
+    round_keys = key_schedule(
+        master_key,
+        ROUNDS
+    )
+
+    if len(round_keys) != ROUNDS:
+
+        raise AssertionError(
+            "Incorrect number of round keys."
+        )
+
+    for round_key in round_keys:
+
+        if len(round_key) != KEY_SIZE:
+
+            raise AssertionError(
+                "Invalid round-key size."
+            )
+
+    if len(set(round_keys)) != ROUNDS:
+
+        raise AssertionError(
+            "Duplicate round keys detected."
+        )
+
+    recovered_key = inverse_key_schedule(
+        round_keys
+    )
+
+    if recovered_key != master_key:
+
+        raise AssertionError(
+            "Key schedule reversibility failed."
+        )
+
+    print(
+        "BORN-256 key schedule test: PASS"
+    )
+
+
+# ============================================================
+# SELF-TEST: ONE ROUND
 # ============================================================
 
 def test_born_round() -> None:
-    """Test that one complete BORN-256 round is reversible."""
 
     test_cases = [
 
-        # Zero state
         (
             bytes(32),
             bytes([0xFF] * 32)
         ),
 
-        # All-one state
         (
             bytes([0xFF] * 32),
             bytes(32)
         ),
 
-        # Incrementing state
         (
             bytes(range(32)),
             bytes([0xAA] * 32)
         ),
 
-        # Alternating state and key
         (
             bytes(
                 [
@@ -1013,25 +1000,68 @@ def test_born_round() -> None:
 
     for original_state, round_key in test_cases:
 
-        round_output = born_round(
+        output = born_round(
             original_state,
             round_key
         )
 
-        recovered_state = inverse_born_round(
-            round_output,
+        recovered = inverse_born_round(
+            output,
             round_key
         )
 
-        if recovered_state != original_state:
+        if recovered != original_state:
 
             raise AssertionError(
-                "BORN-256 one-round "
-                "reversibility test failed."
+                "BORN-256 one-round reversibility failed."
             )
 
     print(
         "BORN-256 one-round reversibility test: PASS"
+    )
+
+
+# ============================================================
+# SELF-TEST: FULL CIPHER
+# ============================================================
+
+def test_full_cipher() -> None:
+
+    plaintext = bytes(range(32))
+
+    key = bytes(
+        [
+            0xAA
+            if i % 2 == 0
+            else 0x55
+            for i in range(32)
+        ]
+    )
+
+    ciphertext = encrypt_block(
+        plaintext,
+        key
+    )
+
+    recovered = decrypt_block(
+        ciphertext,
+        key
+    )
+
+    if recovered != plaintext:
+
+        raise AssertionError(
+            "Full BORN-256 reversibility failed."
+        )
+
+    if ciphertext == plaintext:
+
+        raise AssertionError(
+            "Ciphertext is identical to plaintext."
+        )
+
+    print(
+        "BORN-256 full cipher reversibility test: PASS"
     )
 
 
@@ -1057,7 +1087,11 @@ if __name__ == "__main__":
 
     test_permutation()
 
+    test_key_schedule()
+
     test_born_round()
+
+    test_full_cipher()
 
     print()
 
