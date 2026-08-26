@@ -1,30 +1,71 @@
-# BORN-256
+## BORN-256 Structure
 
-BORN-256 is an open-source experimental cryptographic research project exploring Boolean-gate-based symmetric encryption.
+The current experimental cipher uses a 16-round structure.
+Each round applies the core transformation and mixing operations
+together with a round key.
 
-The project investigates the use of Boolean operations such as AND, OR, and NOT in a multi-round encryption construction.
+```text
+                    256-bit Plaintext
+                           │
+                           ▼
+                  ┌─────────────────┐
+                  │    16 Rounds    │
+                  └────────┬────────┘
+                           │
+             ┌─────────────▼─────────────┐
+             │         Each Round        │
+             │                           │
+             │  ┌─────────────────────┐  │
+             │  │    Key Mixing       │  │
+             │  └──────────┬──────────┘  │
+             │             ▼             │
+             │  ┌─────────────────────┐  │
+             │  │     BORN-T Layer    │  │
+             │  └──────────┬──────────┘  │
+             │             ▼             │
+             │  ┌─────────────────────┐  │
+             │  │  State-Wide Mixing  │  │
+             │  └──────────┬──────────┘  │
+             │             ▼             │
+             │  ┌─────────────────────┐  │
+             │  │  Permutation Layer  │  │
+             │  └─────────────────────┘  │
+             │                           │
+             └─────────────┬─────────────┘
+                           │
+                           ▼
+                  256-bit Ciphertext
 
-## Project Status
 
-🚧 Experimental — Research Prototype
 
-BORN-256 has not been formally cryptanalyzed or independently audited.
 
-It is NOT currently claimed to be:
-- A secure replacement for AES
-- Quantum-resistant
-- Unbreakable
-- Suitable for protecting sensitive information
+### Key Schedule
 
-## Goals
+The 256-bit master key is expanded into one 256-bit round key
+for each of the 16 rounds.
 
-- Explore Boolean-gate-based cryptographic constructions
-- Study confusion and diffusion
-- Analyze avalanche behavior
-- Investigate resistance against classical attacks
-- Study implications under quantum attack models
-- Encourage open-source cryptanalysis and community review
+```text
+                  256-bit Master Key
+                          │
+                          ▼
+                  ┌───────────────┐
+                  │ Key Schedule  │
+                  └───────┬───────┘
+                          │
+            ┌─────────────┼─────────────┐
+            ▼             ▼             ▼
+         Round 1       Round 2       ... Round 16
+        256-bit key   256-bit key       256-bit key
 
-## License
 
-MIT License
+
+
+### One more recommendation
+
+Keep this line exactly as you have it:
+
+> **has not been independently cryptanalyzed or formally proven secure**
+
+That's very important. Your **49.97% / 50.24% avalanche results are promising experimental measurements**, but they shouldn't be presented as proof of security.
+
+So overall: **yes, your README is good**, but I'd use the revised structure above because it explains the architecture much more clearly.
