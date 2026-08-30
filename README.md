@@ -1,17 +1,25 @@
 # BORN-256
 
-> An experimental 256-bit reversible block cipher exploring diffusion, permutation, key mixing, and multi-round cryptographic transformations.
+> An experimental 256-bit reversible block cipher exploring custom transformations, diffusion, permutation, and multi-round key mixing.
 
-**BORN-256** is an experimental 256-bit cryptographic block cipher research project.
+BORN-256 is an experimental cryptographic block cipher research project.
 
-It explores a custom reversible transformation design combining BORN-T transformations, state-wide mixing, permutation, key mixing, and a multi-round key schedule.
+The project explores a custom reversible design combining:
+
+- BORN-T transformations
+- State-wide mixing
+- Permutation
+- Key mixing
+- Multi-round key scheduling
+- 256-bit state processing
 
 > ⚠️ **SECURITY WARNING**
 >
-> BORN-256 is an experimental cryptographic construction.
-> It has not undergone independent cryptanalysis, formal security analysis, or professional security review.
+> BORN-256 is an experimental research and educational construction.
+> It has not been independently cryptanalyzed, formally proven secure,
+> or professionally audited.
 >
-> **BORN-256 must not be used to protect production systems or sensitive real-world data.**
+> **Do not use BORN-256 to protect production systems or sensitive data.**
 
 ---
 
@@ -19,49 +27,37 @@ It explores a custom reversible transformation design combining BORN-T transform
 
 **Experimental / Research**
 
-The current implementation includes:
+The current implementation provides:
 
 - 256-bit block size
 - 256-bit key size
+- 256-bit internal state
 - 16-round cipher
-- BORN-T reversible transformation
-- 256-bit state-wide mixing
-- 256-bit permutation layer
-- 256-bit key mixing
+- BORN-T transformation
+- State-wide diffusion layer
+- Permutation layer
+- Key mixing
 - 256-bit round-key schedule
-- Encryption and decryption
-- Full-round reversibility
-- Key-schedule reversibility
-- Deterministic encryption
+- Encryption
+- Decryption
+- Reversible round transformations
+- Full cipher reversibility
 - Avalanche analysis
+- Key avalanche analysis
 - Differential analysis
-- Differential distribution experiment
-- Collision experiment
+- Differential distribution experiments
+- Collision experiments
+- Deterministic encryption testing
 - Full consistency testing
-
----
-
-## Features
-
-- 🔐 256-bit block size
-- 🔑 256-bit key size
-- 🔄 16-round reversible design
-- 🧩 BORN-T transformation
-- 🌐 State-wide diffusion
-- 🔀 Permutation layer
-- 🔑 Multi-round key schedule
-- 📊 Avalanche analysis
-- 📈 Differential experiments
-- 🧪 Automated test suite
-- 🔁 Full encryption/decryption reversibility
 
 ---
 
 ## BORN-256 Structure
 
-The current experimental cipher uses a 16-round structure.
+BORN-256 uses a 16-round experimental structure.
 
-Each round applies the core transformation and mixing operations together with a round key.
+Each round applies several reversible transformations to the
+256-bit state.
 
 ```text
                     256-bit Plaintext
@@ -95,11 +91,12 @@ Each round applies the core transformation and mixing operations together with a
                            ▼
                   256-bit Ciphertext
 
-
 Key Schedule
 
-The experimental key schedule expands a 256-bit master key into one 256-bit round key for each of the 16 rounds.
+The master key is 256 bits.
 
+The experimental key schedule generates one 256-bit round key for
+each of the 16 rounds.
                   256-bit Master Key
                           │
                           ▼
@@ -112,95 +109,128 @@ The experimental key schedule expands a 256-bit master key into one 256-bit roun
          Round 1       Round 2       ... Round 16
         256-bit key   256-bit key       256-bit key
 
-The key schedule is designed to be reversible in the current experimental implementation.
+The key schedule also includes diffusion, permutation, nonlinear
+transformation, rotation, and round-dependent constants.
 
-| Parameter        |                     Value |
-| ---------------- | ------------------------: |
-| Block size       |                  256 bits |
-| Key size         |                  256 bits |
-| State size       |                  256 bits |
-| Number of rounds |                        16 |
-| Round key size   |                  256 bits |
-| Cipher type      | Experimental block cipher |
-| Implementation   |                    Python |
+
+Parameters
+| Parameter        |        Value |
+| ---------------- | -----------: |
+| Block size       |     256 bits |
+| Key size         |     256 bits |
+| Internal state   |     256 bits |
+| Number of rounds |           16 |
+| Round key size   |     256 bits |
+| Implementation   |       Python |
+| Project status   | Experimental |
+
 
 Experimental Results
 
-The following results come from the current experimental test suite.
+The following results were obtained from the current test suite.
 
 Full Cipher Avalanche
+
+A single-bit plaintext change was tested across 1000 samples.
+
 Samples               : 1000
 Minimum changed bits  : 104
 Maximum changed bits  : 148
 Average changed bits  : 127.91 / 256
 Average changed       : 49.97%
 
-The measured average is close to the approximately 50% reference commonly used when evaluating avalanche behavior.
+The measured average is close to the approximately 50% reference
+used for avalanche measurements.
+
 
 Key Avalanche
+
+A single key-bit change was tested across 1000 samples.
+
 Samples               : 1000
 Minimum changed bits  : 109
 Maximum changed bits  : 147
 Average changed bits  : 128.62 / 256
 Average changed       : 50.24%
 
-This experiment measures the effect of changing a single key bit on the resulting ciphertext.
+This indicates strong experimental sensitivity to single-bit
+key changes under the tested conditions.
+
 
 Differential Analysis
+
 Samples               : 1000
 Minimum output diff   : 105 bits
 Maximum output diff   : 149 bits
 Average output diff   : 128.59 / 256
 Average percentage    : 50.23%
 
-This measures diffusion of arbitrary input differences.
+This experiment measures the diffusion of arbitrary input
+differences.
+
 
 Differential Distribution
+
 Samples                  : 1000
 Unique output differences: 1000
 Maximum frequency        : 1
 Maximum probability      : 0.1000%
 
-Every tested input difference produced a unique output difference in this particular 1000-sample experiment.
+Every tested input difference produced a unique output difference
+in this particular 1000-sample experiment.
+
 
 Collision Experiment
+
 Samples              : 1000
 Unique ciphertexts   : 1000
 Collisions           : 0
+
 No collisions were observed in the tested sample.
 
 This experiment does not prove collision resistance.
 
+
 Deterministic Encryption
+
 Samples     : 1000
 Failures    : 0
 Result      : PASS
 
-Identical plaintext and key inputs consistently produced identical ciphertexts.
+The same plaintext and key consistently produced the same
+ciphertext.
+
 
 Full Consistency
+
 Samples     : 1000
 Failures    : 0
 Result      : PASS
 
-Encryption followed by decryption successfully recovered the original plaintext for all tested samples.
+Encryption followed by decryption successfully recovered the
+original plaintext for all tested samples.
 
-| Experiment                       |             Result |
-| -------------------------------- | -----------------: |
-| Full cipher avalanche            |       127.91 / 256 |
-| Full cipher avalanche percentage |             49.97% |
-| Key avalanche                    |       128.62 / 256 |
-| Key avalanche percentage         |             50.24% |
-| Differential diffusion           |       128.59 / 256 |
-| Differential percentage          |             50.23% |
-| Differential distribution        | 1000 / 1000 unique |
-| Collision experiment             |           0 / 1000 |
-| Deterministic encryption         |        1000 / 1000 |
-| Full consistency                 |        1000 / 1000 |
-| Full cipher reversibility        |               PASS |
-| Key schedule reversibility       |               PASS |
 
-These are experimental measurements only. They do not constitute a cryptographic security proof.
+Experimental Summary
+
+| Experiment                 |             Result |
+| -------------------------- | -----------------: |
+| Full cipher avalanche      |       127.91 / 256 |
+| Full cipher avalanche      |             49.97% |
+| Key avalanche              |       128.62 / 256 |
+| Key avalanche              |             50.24% |
+| Differential diffusion     |       128.59 / 256 |
+| Differential diffusion     |             50.23% |
+| Differential distribution  | 1000 / 1000 unique |
+| Collision experiment       |           0 / 1000 |
+| Deterministic encryption   |        1000 / 1000 |
+| Full consistency           |        1000 / 1000 |
+| Full cipher reversibility  |               PASS |
+| Key schedule reversibility |               PASS |
+
+These results are experimental measurements only. They do not
+constitute a cryptographic security proof.
+
 
 Core Self-Tests
 
@@ -215,6 +245,7 @@ BORN-256 key schedule test: PASS
 BORN-256 one-round reversibility test: PASS
 BORN-256 full cipher reversibility test: PASS
 
+
 Quick Start
 
 Clone the repository:
@@ -226,7 +257,7 @@ Run the built-in self-tests:
 
 python src/born256.py
 
-Expected result:
+Expected output:
 
 Running BORN-256 self-tests...
 
@@ -240,24 +271,44 @@ BORN-256 one-round reversibility test: PASS
 BORN-256 full cipher reversibility test: PASS
 
 All current BORN-256 tests passed.
+
+
 Running the Tests
-Full Cipher Test
+
+Full Cipher
+
 python tests/test_full_cipher.py
+
 Full Cipher Avalanche
+
 python tests/test_full_cipher_avalanche.py
+
 Key Avalanche
+
 python tests/test_key_avalanche.py
+
 Key Schedule Avalanche
+
 python tests/test_key_schedule_avalanche.py
+
 Differential Analysis
+
 python tests/test_differential.py
+
 Differential Distribution
+
 python tests/test_differential_distribution.py
+
 Collision Experiment
+
 python tests/test_collision.py
+
 Deterministic Encryption
+
 python tests/test_deterministic.py
+
 Full Consistency
+
 python tests/test_full_consistency.py
 
 
@@ -278,13 +329,13 @@ born256/
 │   ├── test_state_mix.py
 │   ├── test_state_mix_avalanche.py
 │   ├── test_round_avalanche.py
-│   ├── test_differential.py
-│   ├── test_differential_distribution.py
 │   ├── test_key_schedule.py
 │   ├── test_key_schedule_avalanche.py
 │   ├── test_full_cipher.py
 │   ├── test_full_cipher_avalanche.py
 │   ├── test_key_avalanche.py
+│   ├── test_differential.py
+│   ├── test_differential_distribution.py
 │   ├── test_collision.py
 │   ├── test_deterministic.py
 │   └── test_full_consistency.py
@@ -292,38 +343,45 @@ born256/
 └── README.md
 
 
-
 What the Tests Demonstrate
 
-The current test suite demonstrates several implementation properties.
+The current test suite demonstrates several implementation
+properties.
 
 Reversibility
 
-Encryption and decryption can recover the original plaintext in the tested cases.
+Encryption and decryption can recover the original plaintext in
+the tested cases.
 
 Diffusion
 
-Small changes to inputs can produce significant changes in the resulting state or ciphertext.
+Small changes to inputs can produce significant changes in the
+resulting state or ciphertext.
 
 Avalanche Behavior
 
-The current experiments show approximately 50% output-bit changes on average for tested single-bit changes.
+The current experiments show approximately 50% output-bit changes
+on average for tested single-bit changes.
 
 Key Sensitivity
 
-Changing a single key bit resulted in substantial ciphertext differences in the tested experiments.
+Changing a single key bit produced substantial ciphertext
+differences in the tested experiments.
 
 Determinism
 
-Identical inputs produce identical outputs.
+Identical plaintext and key inputs produce identical ciphertexts.
 
 Consistency
 
-Repeated encryption/decryption operations behave consistently across the tested samples.
+Repeated encryption and decryption operations behave consistently
+across the tested samples.
+
 
 What the Tests Do NOT Demonstrate
 
-Passing these tests does not prove that BORN-256 is cryptographically secure.
+Passing these tests does not prove that BORN-256 is
+cryptographically secure.
 
 The current experiments do not establish resistance against:
 
@@ -342,15 +400,19 @@ Other cryptanalytic attacks
 
 In particular:
 
-Approximately 50% avalanche does not by itself demonstrate cryptographic security.
+Approximately 50% avalanche does not by itself demonstrate
+cryptographic security.
 
-The current results should therefore be interpreted as experimental measurements of the implementation and its observed behavior.
+The results should be interpreted as experimental measurements of
+the current implementation and its observed behavior.
+
 
 Development Approach
 
 BORN-256 has been developed incrementally.
 
 The general development process is:
+
 Design
   │
   ▼
@@ -383,21 +445,25 @@ Collision / Consistency Testing
   ▼
 Further Cryptanalysis
 
-Each stage is tested before moving toward the next stage.
+Each major component is tested before being integrated into the
+complete construction.
+
 
 Project Goals
 
 The main goals of BORN-256 are to explore:
 
-Reversible cryptographic transformations
-256-bit state diffusion
-Multi-round state mixing
-Key sensitivity
-Avalanche behavior
-Experimental differential properties
-Key-schedule behavior
-Implementation correctness
-Cryptographic research and learning
+1. Reversible cryptographic transformations
+2. 256-bit state diffusion
+3. Multi-round state mixing
+4. Key sensitivity
+5. Avalanche behavior
+6. Experimental differential properties
+7. Key-schedule behavior
+8. Implementation correctness
+9. Cryptographic research and learnin
+
+
 Future Work
 
 Potential future research includes:
@@ -415,9 +481,12 @@ Test-vector generation
 Independent cryptanalysis
 Independent security review
 Comparison with established block cipher designs
+
+
 Security Considerations
 
-BORN-256 should currently be treated as a research and educational construction.
+BORN-256 should currently be treated as a research and
+educational construction.
 
 It has not undergone:
 
@@ -427,15 +496,19 @@ Peer review
 Professional cryptographic audit
 Large-scale cryptanalytic evaluation
 
-Therefore, BORN-256 should not be used as a replacement for established cryptographic algorithms.
+Therefore, BORN-256 should not be used as a replacement for
+established cryptographic algorithms.
 
-For real-world applications, use mature, independently reviewed cryptographic standards and libraries.
+For real-world applications, use mature, independently reviewed
+
 
 License
 
 Add the project's selected license here.
 
-If a license has not yet been selected, this section should remain unchanged until one is chosen.
+If a license has not yet been selected, this section should remain
+unchanged until one is chosen.
+
 
 Project
 
@@ -444,36 +517,29 @@ BORN-256
 Experimental cryptography research project.
 
 Repository:
-
 https://github.com/BORN-256/born256
+
+
 Disclaimer
 
 BORN-256 is an experimental cryptographic research project.
 
-The experimental results presented in this repository demonstrate implementation behavior under the tested conditions. They do not constitute a proof of cryptographic security.
+The experimental results presented in this repository demonstrate
+implementation behavior under the tested conditions. They do not
+constitute a proof of cryptographic security.
 
-Use BORN-256 for research, education, experimentation, and development purposes only.
+Use BORN-256 for research, education, experimentation, and
+development purposes only.
 
 Do not use BORN-256 to protect sensitive or production data.
 
 
-### After replacing `README.md`
-
-Run:
+After replacing it:
 
 ```fish
 cd ~/born256
-git diff -- README.md
-
-If everything looks correct:
-
 git add README.md
-git commit -m "Improve BORN-256 documentation"
+git commit -m "Improve BORN-256 README"
 git push origin main
 git status
-
-You should finish with:
-
-Your branch is up to date with 'origin/main'.
-nothing to commit, working tree clean
 
