@@ -52,17 +52,17 @@ The current implementation includes:
 
 ## Features
 
-- 🔐 256-bit block size
-- 🔑 256-bit key size
-- 🔄 16-round reversible design
-- 🧩 BORN-T transformation
-- 🌐 State-wide diffusion
-- 🔀 Permutation layer
-- 🔑 Multi-round key schedule
-- 📊 Avalanche analysis
-- 📈 Differential experiments
-- 🧪 Automated test suite
-- 🔁 Full encryption/decryption reversibility
+- 256-bit block size
+- 256-bit key size
+- 16-round reversible design
+- BORN-T transformation
+- State-wide diffusion
+- Permutation layer
+- Multi-round key schedule
+- Avalanche analysis
+- Differential experiments
+- Automated test suite
+- Full encryption/decryption reversibility
 
 ---
 
